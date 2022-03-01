@@ -15,7 +15,7 @@ interface CustomProps {
 const TextMaskCustom = React.forwardRef<HTMLElement, CustomProps>(
     function TextMaskCustom(props, ref) {
         const { onChange, mask: incomingMask, ...other } = props as any;
-        console.log('mask', incomingMask);
+        console.log('other', other);
         const baseMask = "#(000) 0000000";
         const definitions = {
             "#": /[1-90]/
@@ -23,17 +23,15 @@ const TextMaskCustom = React.forwardRef<HTMLElement, CustomProps>(
         const mask = (Array.isArray(incomingMask) ? incomingMask.map(e => ({
             mask: e,
             definitions
-        })) : {
-            mask: incomingMask,
-            definitions
-        }) || baseMask;
+        })) : 
+        incomingMask) || baseMask;
         return (
             <IMaskInput
                 {...other}
                 mask={mask}
+                definitions={definitions}
                 inputRef={ref}
                 onAccept={(value: any) => {
-                    console.log(value);
                     onChange({ target: { name: props.name, value } })
                 }
                 }
@@ -48,20 +46,20 @@ const TextMaskCustom = React.forwardRef<HTMLElement, CustomProps>(
   
 export default function FormattedInputs() {
 
+    const ref = React.useRef<HTMLInputElement>();
+
     const [state, setState] = React.useState<{
         value: string;
         mask: string | string[];
+        cursor: number;
     }>({
         value: '',
-        mask: ''
+        mask: '',
+        cursor: 0
     });
   
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         let value = event.target.value;
-        console.log(value);
-        // if(value.length > state.mask.length) {
-
-        // }
         setState({
             ...state,
             value
@@ -71,6 +69,7 @@ export default function FormattedInputs() {
 
     const setMask: React.ComponentProps<typeof CountrySelector>['onChange'] = (mask) => {
         console.log(mask);
+        console.log('ref', ref);
         if(Array.isArray(mask)) {
             // сортируем по длинне элементов, без вспомогательных знаков
             const shortRegExp = /[\(\)\-]/g;
@@ -81,39 +80,52 @@ export default function FormattedInputs() {
             setState({
                 ...state,
                 mask: sortedMask,
-                value: sortedMask[0].replace(/#/g, '0')
+                value: sortedMask[0].replace(/#/g, '0'),
+                cursor: sortedMask[0].indexOf('#')
             });
         } else {
             setState({
                 ...state,
                 mask,
-                value: mask.replace(/#/g, '0')
+                value: mask.replace(/#/g, '0'),
+                cursor: mask.indexOf('#')
             });
         }
     }
+
+    React.useEffect(() => {
+        if(ref.current) {
+            ref.current.selectionStart = state.cursor;
+            ref.current.selectionEnd = state.cursor;
+            ref.current.focus();
+        }
+    }, [
+        state.mask.toString() + state.cursor.toString()
+    ]);
   
     return (
-      <Box
-        sx={{
-          "& > :not(style)": {
-            m: 1
-          }
-        }}
-      >
-        <TextField
-          label="react-number-format"
-          value={state.value}
-          onChange={handleChange}
-          name="value"
-          id="formatted-numberformat-input"
-          InputProps={{
-            inputComponent: TextMaskCustom as any,
-            startAdornment: <CountrySelector baseCountry={'RU'} onChange={setMask} />
-          }}
-          inputProps={{
-            mask: state.mask
-          }}
-        />
+        <Box  
+            sx={{
+            "& > :not(style)": {
+                m: 1
+            }
+            }}
+        >
+            <TextField
+                label="react-number-format"
+                value={state.value}
+                onChange={handleChange}
+                name="value"
+                id="formatted-numberformat-input"
+                InputProps={{
+                    inputComponent: TextMaskCustom as any,
+                    startAdornment: <CountrySelector baseCountry={'RU'} onChange={setMask} />
+                }}
+                inputProps={{
+                    mask: state.mask,
+                    ref: ref,
+                }}
+            />
       </Box>
     );
 }
