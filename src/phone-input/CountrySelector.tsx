@@ -10,7 +10,9 @@ import { List, AutoSizer } from 'react-virtualized';
 import Button, { buttonClasses } from '@mui/material/Button';
 import { Box } from '@mui/material';
 
-
+/**
+ * подготавливаем ссылки на иконки и из мультимасок убираем чифры для упрощения обработки
+ */
 const countries = ctrs.map(e => {
     let flag = `https://flagcdn.com/${e.iso.toLowerCase()}.svg`;
     if(e.name === 'Netherlands Antilles') {
@@ -18,28 +20,29 @@ const countries = ctrs.map(e => {
     }
     return {
         ...e,
-        flag 
+        flag,
+        // mask: Array.isArray(e.mask) ? e.mask.map(e => e.replace(/#/g, '\\d')) : (e.mask as any).replace(/#/g, '\\d')
     }
 });
 
 (window as any).countries = countries
 
 interface Props {
-    selected: typeof countries[number]['iso'];
+    baseCountry: typeof countries[number]['iso'];
     onChange: (mask: string | string[]) => void;
 }
 
 export const CountrySelector: React.FC<Props> = ({
-    selected,
+    baseCountry,
     onChange
 }) => {
 
     const [ image, setImage ] = React.useState<typeof countries[number]['flag'] | null>(null);
 
     React.useEffect(() => {
-        const item = countries.find((e) => e.iso === selected);
+        const item = countries.find((e) => e.iso === baseCountry);
         if(item) setImage(item.flag)
-    }, [selected]);
+    }, []);
     
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
