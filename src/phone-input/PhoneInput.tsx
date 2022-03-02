@@ -87,7 +87,6 @@ export default function FormattedInputs() {
     }
 
     React.useEffect(() => {
-        console.log(mount);
         if(mount && ref.current) {
             ref.current.selectionStart = state.cursor;
             ref.current.selectionEnd = state.cursor;
