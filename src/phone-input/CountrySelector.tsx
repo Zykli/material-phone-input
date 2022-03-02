@@ -25,28 +25,14 @@ const countries = ctrs.map(e => {
 });
 
 interface Props {
-    baseCountry: typeof countries[number]['iso'];
     onChange: (mask: string | string[]) => void;
 }
 
 export const CountrySelector: React.FC<Props> = ({
-    baseCountry,
     onChange
 }) => {
 
     const [ image, setImage ] = React.useState<typeof countries[number]['flag'] | null>(null);
-
-    React.useEffect(() => {
-        const item = countries.find((e) => e.iso === baseCountry);
-        if(item) {
-            setImage(item.flag);
-            if(Array.isArray(item.mask)) {
-                onChange(item.mask.map(el => `${item.code} ${el}`));
-            } else {
-                onChange(`${item.code} ${item.mask}`);
-            }
-        }
-    }, []);
     
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
@@ -74,7 +60,9 @@ export const CountrySelector: React.FC<Props> = ({
                 }}
                 
             >
-                {image && <img src={image} style={{width: 30, height: 20}} />}
+                {
+                    (image && <img src={image} style={{width: 30, height: 20}} />) || <div style={{width: 30, height: 20}} />
+                }
             </Button>
             <Menu
                 id="demo-positioned-menu"

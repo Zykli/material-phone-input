@@ -86,17 +86,17 @@ export default function FormattedInputs() {
         }
     }
 
-    // React.useEffect(() => {
-    //     console.log(mount);
-    //     if(mount && ref.current) {
-    //         ref.current.selectionStart = state.cursor;
-    //         ref.current.selectionEnd = state.cursor;
-    //         ref.current.focus();
-    //     }
-    //     if(!mount) mount = true;
-    // }, [
-    //     state.mask.toString() + state.cursor.toString()
-    // ]);
+    React.useEffect(() => {
+        console.log(mount);
+        if(mount && ref.current) {
+            ref.current.selectionStart = state.cursor;
+            ref.current.selectionEnd = state.cursor;
+            ref.current.focus();
+        }
+        if(!mount) mount = true;
+    }, [
+        state.mask.toString() + state.cursor.toString()
+    ]);
   
     return (
         <Box  
@@ -114,7 +114,7 @@ export default function FormattedInputs() {
                 id="formatted-numberformat-input"
                 InputProps={{
                     inputComponent: TextMaskCustom as any,
-                    startAdornment: <CountrySelector baseCountry={'RU'} onChange={setMask} />
+                    startAdornment: <CountrySelector onChange={setMask} />
                 }}
                 inputProps={{
                     mask: state.mask,
