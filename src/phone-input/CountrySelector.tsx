@@ -20,12 +20,9 @@ const countries = ctrs.map(e => {
     }
     return {
         ...e,
-        flag,
-        // mask: Array.isArray(e.mask) ? e.mask.map(e => e.replace(/#/g, '\\d')) : (e.mask as any).replace(/#/g, '\\d')
+        flag
     }
 });
-
-(window as any).countries = countries
 
 interface Props {
     baseCountry: typeof countries[number]['iso'];
@@ -41,14 +38,24 @@ export const CountrySelector: React.FC<Props> = ({
 
     React.useEffect(() => {
         const item = countries.find((e) => e.iso === baseCountry);
-        if(item) setImage(item.flag)
+        if(item) {
+            setImage(item.flag);
+            if(Array.isArray(item.mask)) {
+                onChange(item.mask.map(el => `${item.code} ${el}`));
+            } else {
+                onChange(`${item.code} ${item.mask}`);
+            }
+        }
     }, []);
     
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+
     const open = Boolean(anchorEl);
+    
     const handleClick = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
     };
+
     const handleClose = () => {
         setAnchorEl(null);
     };
